@@ -1,6 +1,7 @@
 package com.oechslerbernardo.kleverappchallange.presentation.details
 
 import android.annotation.SuppressLint
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,12 +20,18 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.oechslerbernardo.kleverappchallange.presentation.components.DisplayAlertDialog
 import com.oechslerbernardo.kleverappchallange.presentation.details.components.DetailCryptoTopAppBar
 import com.oechslerbernardo.kleverappchallange.presentation.main.MainState
 import com.oechslerbernardo.kleverappchallange.ui.theme.Green1
@@ -38,6 +45,9 @@ import com.oechslerbernardo.kleverappchallange.util.formatPrice
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun CryptoDetailScreen(state: DetailsState, onEvent: (DetailsEvent) -> Unit) {
+
+    val context = LocalContext.current
+    var openDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -54,14 +64,29 @@ fun CryptoDetailScreen(state: DetailsState, onEvent: (DetailsEvent) -> Unit) {
                 onActionClick = {
                     state.selectedCrypto?.let { crypto ->
                         if (state.isCryptoAddedToWatchlist) {
-                            onEvent(DetailsEvent.OnDeleteCrypto(crypto))
+                            openDialog = true
                         } else {
                             onEvent(DetailsEvent.OnAddCrypto(crypto))
+                            Toast.makeText(
+                                context,
+                                "${crypto.name} added to your watchlist!",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     }
                 },
                 actionIconDescription = "Toggle Watchlist"
             )
+            state.selectedCrypto?.let { crypto ->
+                DisplayAlertDialog(
+                    crypto = crypto,
+                    title = "Delete",
+                    message = "Are you sure you want to permanently delete ${crypto.name} from your watchlist?",
+                    dialogOpened = openDialog,
+                    onDialogClosed = { openDialog = false },
+                    onYesClicked = { onEvent(DetailsEvent.OnDeleteCrypto(crypto)) }
+                )
+            }
         }) { padding ->
         if (state.isLoading) {
             Column(
