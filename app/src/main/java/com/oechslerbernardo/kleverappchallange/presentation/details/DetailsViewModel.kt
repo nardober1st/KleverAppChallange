@@ -12,7 +12,6 @@ import com.oechslerbernardo.kleverappchallange.domain.model.Crypto
 import com.oechslerbernardo.kleverappchallange.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -74,7 +73,6 @@ class DetailsViewModel @Inject constructor(
 
         if (cryptoId != null) {
             viewModelScope.launch {
-//                state = state.copy(isLoading = true)
                 if (isFromDb == true) {
                     state = try {
                         val crypto = repository.getCryptoById(cryptoId)
@@ -84,7 +82,6 @@ class DetailsViewModel @Inject constructor(
                         state.copy(error = e.localizedMessage, isLoading = false)
                     }
                 } else {
-                    // Fetch crypto details from the API
                     repository.getSelectedCrypto(cryptoId).collect { resource ->
                         state = when (resource) {
                             is Resource.Success -> {

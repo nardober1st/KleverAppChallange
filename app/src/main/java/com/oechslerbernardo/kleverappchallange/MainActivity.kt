@@ -3,7 +3,10 @@ package com.oechslerbernardo.kleverappchallange
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
@@ -22,6 +25,7 @@ import com.oechslerbernardo.kleverappchallange.presentation.watchlist.WatchListE
 import com.oechslerbernardo.kleverappchallange.presentation.watchlist.WatchListViewModel
 import com.oechslerbernardo.kleverappchallange.ui.theme.KleverAppChallangeTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -37,6 +41,9 @@ class MainActivity : ComponentActivity() {
                     composable("watchListScreen") {
                         val viewModel: WatchListViewModel = hiltViewModel()
                         val state = viewModel.state
+                        val scaffoldState = remember {
+                            SnackbarHostState()
+                        }
                         LaunchedEffect(Unit) {
                             viewModel.watchListChannelEvent.collect { event ->
                                 when (event) {
@@ -53,13 +60,16 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                         WatchList(
-                            onEvent = viewModel::onEvent, state = state
-
+                            snackBar = scaffoldState,
+                            onEvent = viewModel::onEvent,
+                            state = state
                         )
                     }
                     composable("mainScreen") {
                         val state = mainViewModel.state
-
+                        val scaffoldState = remember {
+                            SnackbarHostState()
+                        }
                         LaunchedEffect(key1 = Unit) {
                             mainViewModel.mainChannelEvent.collect { event ->
                                 when (event) {
@@ -75,7 +85,11 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                         }
-                        MainScreen(state = state, onEvent = mainViewModel::onEvent)
+                        MainScreen(
+                            state = state,
+                            onEvent = mainViewModel::onEvent,
+                            snackBar = scaffoldState
+                        )
                     }
                     composable(
                         route = "cryptoDetailScreen/{cryptoId}/{isFromDb}",
@@ -86,7 +100,10 @@ class MainActivity : ComponentActivity() {
                     ) {
                         val detailsViewModel: DetailsViewModel = hiltViewModel()
                         val state = detailsViewModel.state
-
+                        val scaffoldState = remember {
+                            SnackbarHostState()
+                        }
+                        val scope = rememberCoroutineScope()
                         LaunchedEffect(key1 = Unit) {
                             detailsViewModel.detailsChannelEvent.collect { event ->
                                 when (event) {
@@ -95,17 +112,23 @@ class MainActivity : ComponentActivity() {
                                     }
 
                                     is DetailsEvent.OnDeleteCrypto -> {
-                                        navController.popBackStack()
+                                        scope.launch {
+                                            scaffoldState.showSnackbar("${event.crypto.name} deleted from your watchlist!")
+                                        }
                                     }
 
                                     is DetailsEvent.OnAddCrypto -> {
-                                        navController.popBackStack()
+                                        scope.launch {
+                                            scaffoldState.showSnackbar("${event.crypto.name} added to your watchlist!")
+                                        }
                                     }
                                 }
                             }
                         }
                         CryptoDetailScreen(
-                            state = state, onEvent = detailsViewModel::onEvent
+                            state = state,
+                            onEvent = detailsViewModel::onEvent,
+                            snackBar = scaffoldState
                         )
                     }
                 }

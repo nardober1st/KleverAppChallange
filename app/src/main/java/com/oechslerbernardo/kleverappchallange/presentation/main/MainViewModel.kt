@@ -73,7 +73,6 @@ class MainViewModel @Inject constructor(
             "Loading page: $page, sort: ${state.sortOption?.first}, direction: ${state.sortOption?.second}"
         )
         viewModelScope.launch {
-//            state = state.copy(isLoading = true)
             repository.getAllCryptos(page, limit, state.sortOption?.first, state.sortOption?.second)
                 .collect { resource ->
                     when (resource) {

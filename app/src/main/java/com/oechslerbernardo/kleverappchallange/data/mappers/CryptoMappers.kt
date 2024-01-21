@@ -3,8 +3,6 @@ package com.oechslerbernardo.kleverappchallange.data.mappers
 import com.oechslerbernardo.kleverappchallange.data.local.model.CryptoEntity
 import com.oechslerbernardo.kleverappchallange.data.remote.model.crypto.CryptoDto
 import com.oechslerbernardo.kleverappchallange.data.remote.model.crypto.Data
-import com.oechslerbernardo.kleverappchallange.data.remote.model.crypto.Quote
-import com.oechslerbernardo.kleverappchallange.data.remote.model.crypto.USD
 import com.oechslerbernardo.kleverappchallange.domain.model.Crypto
 
 fun CryptoDto.toCrypto(): List<Crypto> {
@@ -29,35 +27,6 @@ fun CryptoDto.toCrypto(): List<Crypto> {
     }
 }
 
-fun Crypto.toCryptoDto(): CryptoDto {
-    return CryptoDto(
-        data = listOf(
-            Data(
-                id = id,
-                circulating_supply = circulatingSupply,
-                name = name,
-                slug = slug,
-                symbol = symbol,
-                total_supply = totalSupply,
-                quote = Quote(
-                    USD = USD(
-                        market_cap = marketCap,
-                        percent_change_1h = percentChange1h,
-                        percent_change_24h = percentChange24h,
-                        percent_change_30d = percentChange30d,
-                        percent_change_60d = percentChange60d,
-                        percent_change_7d = percentChange7d,
-                        percent_change_90d = percentChange90d,
-                        price = price,
-                        volume_24h = volume24h
-                    )
-                )
-            )
-        )
-    )
-}
-
-// Mapper to convert Crypto to CryptoEntity
 fun Crypto.toEntity(): CryptoEntity {
     return CryptoEntity(
         id = this.id,
@@ -78,7 +47,6 @@ fun Crypto.toEntity(): CryptoEntity {
     )
 }
 
-// Mapper to convert CryptoEntity to Crypto
 fun CryptoEntity.toCrypto(): Crypto {
     return Crypto(
         id = this.id,

@@ -3,21 +3,14 @@ package com.oechslerbernardo.kleverappchallange.presentation.watchlist
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.oechslerbernardo.kleverappchallange.domain.model.Crypto
 import com.oechslerbernardo.kleverappchallange.domain.repository.CryptoRepository
-import com.oechslerbernardo.kleverappchallange.presentation.main.MainState
 import com.oechslerbernardo.kleverappchallange.util.Resource
 import com.oechslerbernardo.kleverappchallange.util.SortOrder
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -76,9 +69,9 @@ class WatchListViewModel @Inject constructor(
                     is Resource.Success -> {
                         loadWatchlist()
                         state.copy(isLoading = false)
-                    } // Reload watchlist after refresh
+                    }
                     is Resource.Error -> {
-                        state.copy(error = resource.message, isLoading = false)
+                        state.copy(errorMessage = resource.message, isLoading = false)
                     }
                 }
             }

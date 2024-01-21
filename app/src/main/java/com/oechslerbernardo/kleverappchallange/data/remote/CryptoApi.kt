@@ -11,8 +11,8 @@ interface CryptoApi {
     suspend fun getAllCryptos(
         @Query("start") start: Int?,
         @Query("limit") limit: Int?,
-        @Query("sort") sort: String? = null, // Add sorting parameter
-        @Query("sort_dir") sortDir: String? = null, // Add sort direction parameter
+        @Query("sort") sort: String? = null,
+        @Query("sort_dir") sortDir: String? = null,
         @Query("CMC_PRO_API_KEY") apiKey: String = BuildConfig.API_KEY
     ): CryptoDto
 

@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import retrofit2.HttpException
 import java.io.IOException
+import java.net.UnknownHostException
 import javax.inject.Inject
 
 class CryptoRepositoryImpl @Inject constructor(
@@ -119,6 +120,8 @@ class CryptoRepositoryImpl @Inject constructor(
                 emit(Resource.Success(Unit))
             } catch (e: Exception) {
                 emit(Resource.Error("Error refreshing cryptos: ${e.localizedMessage}"))
+            } catch (e: UnknownHostException) {
+                emit(Resource.Error("No internet connection. Unable to refresh data."))
             }
         }
 

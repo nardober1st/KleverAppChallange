@@ -51,6 +51,5 @@ fun formatPercentageChange(percentChange24h: Double): String {
 }
 
 fun formatLargeNumber(number: Double): String {
-    // Format the number as needed (e.g., with commas)
     return NumberFormat.getNumberInstance().format(number)
 }

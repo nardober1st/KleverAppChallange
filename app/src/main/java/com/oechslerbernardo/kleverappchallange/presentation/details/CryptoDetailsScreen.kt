@@ -14,15 +14,19 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,27 +37,31 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.oechslerbernardo.kleverappchallange.presentation.components.DisplayAlertDialog
 import com.oechslerbernardo.kleverappchallange.presentation.details.components.DetailCryptoTopAppBar
-import com.oechslerbernardo.kleverappchallange.presentation.main.MainState
+import com.oechslerbernardo.kleverappchallange.presentation.other.LoadingScreen
 import com.oechslerbernardo.kleverappchallange.ui.theme.Green1
 import com.oechslerbernardo.kleverappchallange.ui.theme.Red1
 import com.oechslerbernardo.kleverappchallange.util.formatChangeAmount
 import com.oechslerbernardo.kleverappchallange.util.formatLargeNumber
 import com.oechslerbernardo.kleverappchallange.util.formatPercentageChange
 import com.oechslerbernardo.kleverappchallange.util.formatPrice
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun CryptoDetailScreen(state: DetailsState, onEvent: (DetailsEvent) -> Unit) {
+fun CryptoDetailScreen(
+    state: DetailsState,
+    onEvent: (DetailsEvent) -> Unit,
+    snackBar: SnackbarHostState
+) {
 
-    val context = LocalContext.current
     var openDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
             val title = state.selectedCrypto?.name ?: "Crypto Details"
             val actionIcon = if (state.isCryptoAddedToWatchlist) {
-                Icons.Filled.Check
+                Icons.Filled.DeleteOutline
             } else {
                 Icons.Filled.Add
             }
@@ -67,11 +75,6 @@ fun CryptoDetailScreen(state: DetailsState, onEvent: (DetailsEvent) -> Unit) {
                             openDialog = true
                         } else {
                             onEvent(DetailsEvent.OnAddCrypto(crypto))
-                            Toast.makeText(
-                                context,
-                                "${crypto.name} added to your watchlist!",
-                                Toast.LENGTH_SHORT
-                            ).show()
                         }
                     }
                 },
@@ -79,23 +82,20 @@ fun CryptoDetailScreen(state: DetailsState, onEvent: (DetailsEvent) -> Unit) {
             )
             state.selectedCrypto?.let { crypto ->
                 DisplayAlertDialog(
-                    crypto = crypto,
                     title = "Delete",
                     message = "Are you sure you want to permanently delete ${crypto.name} from your watchlist?",
                     dialogOpened = openDialog,
                     onDialogClosed = { openDialog = false },
-                    onYesClicked = { onEvent(DetailsEvent.OnDeleteCrypto(crypto)) }
+                    onYesClicked = {
+                        onEvent(DetailsEvent.OnDeleteCrypto(crypto))
+                    }
                 )
             }
-        }) { padding ->
+        },
+        snackbarHost = { SnackbarHost(hostState = snackBar) }
+    ) { padding ->
         if (state.isLoading) {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                CircularProgressIndicator()
-            }
+            LoadingScreen()
         } else if (state.selectedCrypto != null) {
             Column(
                 modifier = Modifier
